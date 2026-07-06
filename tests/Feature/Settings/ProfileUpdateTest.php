@@ -25,11 +25,14 @@ class ProfileUpdateTest extends TestCase
     {
         $user = User::factory()->create();
 
+        // Use a unique email derived from the user's id to avoid cross-test collisions
+        $newEmail = 'updated_' . substr($user->id, 0, 8) . '@example.com';
+
         $response = $this
             ->actingAs($user)
             ->patch(route('profile.update'), [
-                'name' => 'Test User',
-                'email' => 'test@example.com',
+                'name'  => 'Test User',
+                'email' => $newEmail,
             ]);
 
         $response
@@ -39,7 +42,7 @@ class ProfileUpdateTest extends TestCase
         $user->refresh();
 
         $this->assertSame('Test User', $user->name);
-        $this->assertSame('test@example.com', $user->email);
+        $this->assertSame($newEmail, $user->email);
         $this->assertNull($user->email_verified_at);
     }
 
@@ -76,7 +79,7 @@ class ProfileUpdateTest extends TestCase
             ->assertRedirect(route('home'));
 
         $this->assertGuest();
-        $this->assertNull($user->fresh());
+        $this->assertSoftDeleted($user);
     }
 
     public function test_correct_password_must_be_provided_to_delete_account()

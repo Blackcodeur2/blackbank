@@ -122,23 +122,25 @@ class TransactionController extends Controller
 
             $ref = 'TRF-' . strtoupper(uniqid());
 
+            // Sender transaction (debit)
             Transaction::create([
                 'user_id'     => $sender->id,
                 'type'        => 'virement_interne',
                 'montant'     => $request->montant,
                 'statut'      => 'reussie',
                 'description' => $request->description ?? "Transfert vers {$recipient->name}",
-                'reference'   => $ref,
+                'reference'   => $ref . '-OUT',
                 'metadonnees' => ['type_transfert' => 'envoye', 'destinataire_email' => $recipient->email],
             ]);
 
+            // Recipient transaction (credit)
             Transaction::create([
                 'user_id'     => $recipient->id,
                 'type'        => 'virement_interne',
                 'montant'     => $request->montant,
                 'statut'      => 'reussie',
                 'description' => "Transfert reçu de {$sender->name}",
-                'reference'   => $ref,
+                'reference'   => $ref . '-IN',
                 'metadonnees' => ['type_transfert' => 'recu', 'expediteur_email' => $sender->email],
             ]);
         });

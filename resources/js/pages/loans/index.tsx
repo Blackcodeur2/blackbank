@@ -20,7 +20,7 @@ type Loan = {
     taux_interet: string;
     duree_mois: number;
     motif: string | null;
-    statut: 'en_attente' | 'approuve' | 'actif' | 'solde' | 'en_defaut' | 'rejete';
+    statut: 'en_attente' | 'approuve' | 'rejete' | 'solde' | 'en_defaut';
     created_at: string;
     plan: LoanPlan;
 };
@@ -42,7 +42,6 @@ function formatDate(dateStr: string) {
 const loanStatutBadge: Record<string, string> = {
     en_attente: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
     approuve: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-    actif: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
     solde: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
     en_defaut: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
     rejete: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',

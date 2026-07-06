@@ -5,13 +5,12 @@ import type { User } from '@/types';
 type SavingsPlanType = {
     id: string;
     user_id: string;
-    type: 'DPS' | 'FDR';
+    type_plan: 'dps' | 'fdr';
     montant: string;
-    taux_annuel: string;
-    duree_mois: number;
-    statut: 'actif' | 'termine' | 'annule';
+    taux_interet: string;
+    statut: 'actif' | 'cloture' | 'rompu_anticipe';
     date_debut: string;
-    date_echeance: string;
+    date_fin: string;
     created_at: string;
 };
 
@@ -28,10 +27,22 @@ function formatDate(dateStr: string) {
     return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(dateStr));
 }
 
+function diffInMonths(startStr: string, endStr: string) {
+    const start = new Date(startStr);
+    const end = new Date(endStr);
+    return Math.max(1, (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()));
+}
+
 const statutBadge: Record<string, string> = {
     actif: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-    termine: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
-    annule: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+    cloture: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
+    rompu_anticipe: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+};
+
+const statutLabel: Record<string, string> = {
+    actif: 'Actif',
+    cloture: 'Clôturé',
+    rompu_anticipe: 'Rompue par anticipation',
 };
 
 const planInfo = {
@@ -154,19 +165,19 @@ export default function SavingsIndex({ user, myPlans }: Props) {
                                 <li key={plan.id} className="flex flex-col gap-1 px-5 py-4 sm:flex-row sm:items-center sm:gap-4">
                                     <div className="min-w-0 flex-1">
                                         <div className="flex items-center gap-2">
-                                            <span className="font-semibold text-sm">{plan.type}</span>
+                                            <span className="font-semibold text-sm">{plan.type_plan.toUpperCase()}</span>
                                             <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${statutBadge[plan.statut] ?? ''}`}>
-                                                {plan.statut}
+                                                {statutLabel[plan.statut] ?? plan.statut}
                                             </span>
                                         </div>
                                         <p className="text-xs text-muted-foreground mt-0.5">
-                                            {formatDate(plan.date_debut)} → {formatDate(plan.date_echeance)}
-                                            {' '}· {plan.duree_mois} mois
+                                            {formatDate(plan.date_debut)} → {formatDate(plan.date_fin)}
+                                            {' '}· {diffInMonths(plan.date_debut, plan.date_fin)} mois
                                         </p>
                                     </div>
                                     <div className="text-right">
                                         <p className="font-bold text-sm">{formatCurrency(plan.montant)}</p>
-                                        <p className="text-xs text-muted-foreground">{plan.taux_annuel}% / an</p>
+                                        <p className="text-xs text-muted-foreground">{plan.taux_interet}% / an</p>
                                     </div>
                                 </li>
                             ))}

@@ -23,71 +23,52 @@ class BankingTest extends TestCase
     {
         parent::setUp();
 
-        // Create loan plan
+        // Create loan plan (no unique constraint issues)
         $this->loanPlan = LoanPlan::create([
-            'nom' => 'Prêt personnel Test',
-            'montant_min' => 100.00,
-            'montant_max' => 5000.00,
-            'intervalle' => 'monthly',
-            'nombre_echeances' => 12,
-            'taux_interet' => 6.00,
-            'delai_retard_jours' => 5,
-            'frais_retard_fixe' => 10.00,
+            'nom'                    => 'Prêt personnel Test',
+            'montant_min'            => 100.00,
+            'montant_max'            => 5000.00,
+            'intervalle'             => 'monthly',
+            'nombre_echeances'       => 12,
+            'taux_interet'           => 6.00,
+            'delai_retard_jours'     => 5,
+            'frais_retard_fixe'      => 10.00,
             'frais_retard_pourcentage' => 1.00,
         ]);
 
-        // Create verified user
-        $this->verifiedUser = User::create([
-            'name' => 'Verified Client',
-            'email' => 'verified@blackbank.com',
-            'phone' => '+33611111111',
-            'password' => bcrypt('password'),
-            'statut_kyc' => 'verifie',
-            'solde' => 1000.00,
-            'role' => 'client',
+        // Use factories so each test gets unique, collision-free users
+        $this->verifiedUser = User::factory()->verifiedKyc()->create([
+            'solde' => '1000.00',
         ]);
 
-        // Create unverified user
-        $this->unverifiedUser = User::create([
-            'name' => 'Unverified Client',
-            'email' => 'unverified@blackbank.com',
-            'phone' => '+33622222222',
-            'password' => bcrypt('password'),
-            'statut_kyc' => 'non_soumis',
-            'solde' => 1000.00,
-            'role' => 'client',
+        $this->unverifiedUser = User::factory()->create([
+            'statut_kyc' => 'en_attente',
+            'solde'      => '1000.00',
         ]);
 
-        // Create admin user
-        $this->adminUser = User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@blackbank.com',
-            'phone' => '+33633333333',
-            'password' => bcrypt('password'),
-            'statut_kyc' => 'verifie',
-            'solde' => 5000.00,
-            'role' => 'admin',
+        $this->adminUser = User::factory()->admin()->verifiedKyc()->create([
+            'solde' => '5000.00',
         ]);
     }
 
     /**
      * Test that unverified users are blocked by EnsureKycVerified middleware.
      */
-    public function test_unverified_users_cannot_perform_financial_actions()
+    public function test_unverified_users_cannot_perform_financial_actions(): void
     {
         $this->actingAs($this->unverifiedUser);
 
         // Try transfer
         $response = $this->post(route('transactions.transfer'), [
-            'email_destinataire' => 'verified@blackbank.com',
-            'montant' => 100.00,
+            'email_destinataire' => $this->verifiedUser->email,
+            'montant'            => 100.00,
         ]);
         $response->assertRedirect(route('kyc.index'));
 
         // Try savings subscription
         $response = $this->post(route('savings.subscribe'), [
-            'type' => 'DPS',
-            'montant' => 200.00,
+            'type'       => 'DPS',
+            'montant'    => 200.00,
             'duree_mois' => 12,
         ]);
         $response->assertRedirect(route('kyc.index'));
@@ -95,119 +76,122 @@ class BankingTest extends TestCase
         // Try loan application
         $response = $this->post(route('loans.apply'), [
             'loan_plan_id' => $this->loanPlan->id,
-            'montant' => 500.00,
-            'duree_mois' => 12,
+            'montant'      => 500.00,
+            'duree_mois'   => 12,
         ]);
         $response->assertRedirect(route('kyc.index'));
     }
 
     /**
-     * Test that verified users can perform transfers.
+     * Test that verified users can perform internal transfers.
      */
-    public function test_verified_users_can_transfer_funds()
+    public function test_verified_users_can_transfer_funds(): void
     {
         $this->actingAs($this->verifiedUser);
 
         $response = $this->post(route('transactions.transfer'), [
             'email_destinataire' => $this->unverifiedUser->email,
-            'montant' => 200.00,
-            'description' => 'Test transfer',
+            'montant'            => 200.00,
+            'description'        => 'Test transfer',
         ]);
 
         $response->assertSessionHasNoErrors();
-        $this->assertEquals(800.00, $this->verifiedUser->fresh()->solde);
-        $this->assertEquals(1200.00, $this->unverifiedUser->fresh()->solde);
 
-        // Assert sender and recipient transaction records exist
+        // Decimal:2 cast returns a string
+        $this->assertEquals('800.00', $this->verifiedUser->fresh()->solde);
+        $this->assertEquals('1200.00', $this->unverifiedUser->fresh()->solde);
+
+        // Assert two virement_interne transaction records exist (sender + recipient)
         $this->assertDatabaseHas('transactions', [
             'user_id' => $this->verifiedUser->id,
-            'type' => 'virement_interne',
-            'montant' => 200.00,
-            'statut' => 'reussie',
+            'type'    => 'virement_interne',
+            'montant' => '200.00',
+            'statut'  => 'reussie',
         ]);
 
         $this->assertDatabaseHas('transactions', [
             'user_id' => $this->unverifiedUser->id,
-            'type' => 'virement_interne',
-            'montant' => 200.00,
-            'statut' => 'reussie',
+            'type'    => 'virement_interne',
+            'montant' => '200.00',
+            'statut'  => 'reussie',
         ]);
     }
 
     /**
      * Test savings plan subscription and balance deduction.
      */
-    public function test_verified_users_can_subscribe_to_savings_plan()
+    public function test_verified_users_can_subscribe_to_savings_plan(): void
     {
         $this->actingAs($this->verifiedUser);
 
         $response = $this->post(route('savings.subscribe'), [
-            'type' => 'FDR',
-            'montant' => 300.00,
+            'type'       => 'FDR',
+            'montant'    => 300.00,
             'duree_mois' => 12,
         ]);
 
         $response->assertSessionHasNoErrors();
-        $this->assertEquals(700.00, $this->verifiedUser->fresh()->solde);
+
+        // Balance should be reduced by the subscription amount
+        $this->assertEquals('700.00', $this->verifiedUser->fresh()->solde);
 
         $this->assertDatabaseHas('savings_plans', [
-            'user_id' => $this->verifiedUser->id,
-            'type_plan' => 'fdr',
-            'montant' => 300.00,
-            'taux_interet' => 7.50,
-            'statut' => 'actif',
+            'user_id'      => $this->verifiedUser->id,
+            'type_plan'    => 'fdr',
+            'montant'      => '300.00',
+            'taux_interet' => '7.50',
+            'statut'       => 'actif',
         ]);
 
         $this->assertDatabaseHas('transactions', [
             'user_id' => $this->verifiedUser->id,
-            'type' => 'virement_interne',
-            'montant' => 300.00,
-            'statut' => 'reussie',
+            'type'    => 'virement_interne',
+            'montant' => '300.00',
+            'statut'  => 'reussie',
         ]);
     }
 
     /**
-     * Test loan application submission and admin approval schedule generation.
+     * Test loan application submission and admin approval + amortization schedule.
      */
-    public function test_loan_application_and_approval_workflow()
+    public function test_loan_application_and_approval_workflow(): void
     {
         $this->actingAs($this->verifiedUser);
 
-        // Apply for loan
+        // Submit loan application
         $response = $this->post(route('loans.apply'), [
             'loan_plan_id' => $this->loanPlan->id,
-            'montant' => 1000.00,
-            'duree_mois' => 12,
-            'motif' => 'Need money for computer',
+            'montant'      => 1000.00,
+            'duree_mois'   => 12,
+            'motif'        => 'Achat ordinateur',
         ]);
 
         $response->assertSessionHasNoErrors();
         $this->assertDatabaseHas('loans', [
-            'user_id' => $this->verifiedUser->id,
+            'user_id'      => $this->verifiedUser->id,
             'loan_plan_id' => $this->loanPlan->id,
-            'montant' => 1000.00,
-            'statut' => 'en_attente',
+            'montant'      => '1000.00',
+            'statut'       => 'en_attente',
         ]);
 
-        $loan = Loan::where('user_id', $this->verifiedUser->id)->first();
+        $loan = Loan::where('user_id', $this->verifiedUser->id)->firstOrFail();
 
-        // Approve loan acting as Admin
+        // Approve loan as admin
         $this->actingAs($this->adminUser);
-
         $response = $this->post(route('admin.loans.approve', $loan));
         $response->assertSessionHasNoErrors();
 
-        // Client balance should be credited with the loan principal
-        $this->assertEquals(2000.00, $this->verifiedUser->fresh()->solde);
+        // Client should be credited with loan principal
+        $this->assertEquals('2000.00', $this->verifiedUser->fresh()->solde);
 
-        // Loan status should be active
-        $this->assertEquals('actif', $loan->fresh()->statut);
+        // Loan statut = 'approuve' (valid enum: en_attente, approuve, rejete, solde, en_defaut)
+        $this->assertEquals('approuve', $loan->fresh()->statut);
 
-        // Repayments schedule should be generated
-        // Interest = 1000 * 0.06 * (12/12) = 60
-        // Total = 1060
-        // Monthly payment = 1060 / 12 = 88.33
+        // Repayment schedule should be generated
+        // Interest = 1000 * 0.06 * (12/12) = 60.00
+        // Total = 1060.00
+        // Mensualité = bcdiv('1060.00', '12', 2) = '88.33'
         $this->assertEquals(12, $loan->repayments()->count());
-        $this->assertEquals(88.33, $loan->repayments()->first()->montant_du);
+        $this->assertEquals('88.33', $loan->repayments()->first()->montant_du);
     }
 }

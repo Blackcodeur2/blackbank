@@ -66,7 +66,8 @@ export default function KycIndex({ user, documents, statut }: Props) {
         fichier: null,
     });
 
-    const config = statutConfig[statut] ?? statutConfig['non_soumis'];
+    const effectifStatut = (statut === 'en_attente' && documents.length === 0) ? 'non_soumis' : statut;
+    const config = statutConfig[effectifStatut] ?? statutConfig['en_attente'];
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -86,12 +87,12 @@ export default function KycIndex({ user, documents, statut }: Props) {
                     {config.icon}
                     <div>
                         <p className="font-semibold text-sm">Statut KYC : {config.label}</p>
-                        {statut === 'non_soumis' && (
+                        {effectifStatut === 'non_soumis' && (
                             <p className="text-xs mt-0.5 opacity-80">
                                 Soumettez vos documents pour débloquer toutes les fonctionnalités bancaires.
                             </p>
                         )}
-                        {statut === 'verifie' && (
+                        {effectifStatut === 'verifie' && (
                             <p className="text-xs mt-0.5 opacity-80">
                                 Votre identité a été vérifiée. Toutes les fonctionnalités sont disponibles.
                             </p>

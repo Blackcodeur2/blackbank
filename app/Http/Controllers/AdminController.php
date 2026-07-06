@@ -190,8 +190,8 @@ class AdminController extends Controller
             $mensualite = bcdiv($totalRemboursement, (string) $loan->duree_mois, 2);
 
             $loan->update([
-                'statut' => 'actif',
-                'date_debut' => now(),
+                'statut'    => 'approuve',
+                'approuve_par' => auth()->id(),
             ]);
 
             // Create loan repayments schedule

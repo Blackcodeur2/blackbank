@@ -9,6 +9,14 @@ import {
 import { useState } from 'react';
 import type { Transaction, User } from '@/types';
 
+type Beneficiary = {
+    id: string;
+    nom: string;
+    numero_compte: string;
+    libelle: string;
+    created_at: string;
+};
+
 type Props = {
     user: User;
     transactions: {
@@ -18,6 +26,7 @@ type Props = {
         per_page: number;
         total: number;
     };
+    beneficiaries: Beneficiary[];
 };
 
 function formatCurrency(amount: string | number) {
@@ -49,7 +58,7 @@ const statutBadge: Record<string, string> = {
 
 type Tab = 'historique' | 'depot' | 'retrait' | 'transfert';
 
-export default function TransactionsIndex({ user, transactions }: Props) {
+export default function TransactionsIndex({ user, transactions, beneficiaries }: Props) {
     const [activeTab, setActiveTab] = useState<Tab>('historique');
     const { flash } = usePage<{ flash: { success?: string; warning?: string } }>().props;
 
@@ -94,7 +103,7 @@ export default function TransactionsIndex({ user, transactions }: Props) {
                 )}
                 {activeTab === 'depot' && <DepositForm user={user} />}
                 {activeTab === 'retrait' && <WithdrawForm user={user} />}
-                {activeTab === 'transfert' && <TransferForm user={user} />}
+                {activeTab === 'transfert' && <TransferForm user={user} beneficiaries={beneficiaries} />}
             </div>
         </>
     );
@@ -208,12 +217,16 @@ function WithdrawForm({ user }: { user: User }) {
     );
 }
 
-function TransferForm({ user }: { user: User }) {
+function TransferForm({ user, beneficiaries }: { user: User; beneficiaries: Beneficiary[] }) {
     const { data, setData, post, processing, errors } = useForm({
         email_destinataire: '',
         montant: '',
         description: '',
     });
+
+    const [selectMode, setSelectMode] = useState<'select' | 'manual'>(
+        beneficiaries.length > 0 ? 'select' : 'manual'
+    );
 
     return (
         <FormCard
@@ -222,11 +235,57 @@ function TransferForm({ user }: { user: User }) {
             icon={<Send className="h-5 w-5 text-indigo-500" />}
         >
             <form onSubmit={(e) => { e.preventDefault(); post('/transactions/transfer'); }} className="flex flex-col gap-4">
-                <FormField label="E-mail du destinataire" error={errors.email_destinataire}>
-                    <input type="email" required value={data.email_destinataire}
-                        onChange={(e) => setData('email_destinataire', e.target.value)}
-                        className="input-field" placeholder="destinataire@exemple.com" />
-                </FormField>
+                {selectMode === 'select' ? (
+                    <FormField label="Choisir un bénéficiaire" error={errors.email_destinataire}>
+                        <select
+                            required
+                            value={data.email_destinataire}
+                            onChange={(e) => setData('email_destinataire', e.target.value)}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        >
+                            <option value="" disabled>Sélectionner un bénéficiaire…</option>
+                            {beneficiaries.map((b) => (
+                                <option key={b.id} value={b.numero_compte}>
+                                    {b.libelle} ({b.nom} · {b.numero_compte})
+                                </option>
+                            ))}
+                        </select>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setSelectMode('manual');
+                                setData('email_destinataire', '');
+                            }}
+                            className="text-left text-xs text-indigo-600 dark:text-indigo-400 hover:underline mt-1"
+                        >
+                            Ou saisir une adresse e-mail manuellement
+                        </button>
+                    </FormField>
+                ) : (
+                    <FormField label="E-mail du destinataire" error={errors.email_destinataire}>
+                        <input
+                            type="email"
+                            required
+                            value={data.email_destinataire}
+                            onChange={(e) => setData('email_destinataire', e.target.value)}
+                            className="input-field"
+                            placeholder="destinataire@exemple.com"
+                        />
+                        {beneficiaries.length > 0 && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setSelectMode('select');
+                                    setData('email_destinataire', '');
+                                }}
+                                className="text-left text-xs text-indigo-600 dark:text-indigo-400 hover:underline mt-1"
+                            >
+                                Ou choisir parmi mes bénéficiaires enregistrés
+                            </button>
+                        )}
+                    </FormField>
+                )}
+
                 <FormField label="Montant (€)" error={errors.montant}>
                     <input type="number" min="1" step="0.01" required value={data.montant}
                         onChange={(e) => setData('montant', e.target.value)}

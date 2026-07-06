@@ -46,6 +46,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/', [\App\Http\Controllers\LoanController::class, 'index'])->name('index');
             Route::post('/apply', [\App\Http\Controllers\LoanController::class, 'apply'])->name('apply');
         });
+
+        // Beneficiaries
+        Route::prefix('beneficiaries')->name('beneficiaries.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\BeneficiaryController::class, 'index'])->name('index');
+            Route::post('/', [\App\Http\Controllers\BeneficiaryController::class, 'store'])->name('store');
+            Route::delete('/{beneficiary}', [\App\Http\Controllers\BeneficiaryController::class, 'destroy'])->name('destroy');
+        });
+
+        // Support Tickets
+        Route::prefix('support')->name('support.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\SupportTicketController::class, 'index'])->name('index');
+            Route::post('/', [\App\Http\Controllers\SupportTicketController::class, 'store'])->name('store');
+            Route::get('/{ticket}', [\App\Http\Controllers\SupportTicketController::class, 'show'])->name('show');
+            Route::post('/{ticket}/reply', [\App\Http\Controllers\SupportTicketController::class, 'reply'])->name('reply');
+        });
+
+        // Airtime (mobile recharge)
+        Route::prefix('airtime')->name('airtime.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\AirtimeController::class, 'index'])->name('index');
+            Route::post('/purchase', [\App\Http\Controllers\AirtimeController::class, 'purchase'])->name('purchase');
+        });
     });
     // Admin routes (requires admin middleware)
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -63,6 +84,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/transactions/{transaction}/approve-deposit', [\App\Http\Controllers\AdminController::class, 'approveDeposit'])->name('transactions.approve-deposit');
         Route::post('/transactions/{transaction}/approve-withdrawal', [\App\Http\Controllers\AdminController::class, 'approveWithdrawal'])->name('transactions.approve-withdrawal');
         Route::post('/transactions/{transaction}/reject', [\App\Http\Controllers\AdminController::class, 'rejectTransaction'])->name('transactions.reject');
+
+        // Support Tickets (admin)
+        Route::get('/support', [\App\Http\Controllers\AdminController::class, 'tickets'])->name('support.index');
+        Route::post('/support/{ticket}/reply', [\App\Http\Controllers\AdminController::class, 'replyTicket'])->name('support.reply');
     });
 });
 

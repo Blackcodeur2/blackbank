@@ -22,9 +22,14 @@ class TransactionController extends Controller
             ->orderByDesc('created_at')
             ->paginate(20);
 
+        $beneficiaries = \App\Models\Beneficiary::where('user_id', $user->id)
+            ->orderBy('libelle')
+            ->get();
+
         return Inertia::render('transactions/index', [
-            'transactions' => $transactions,
-            'user'         => $user,
+            'transactions'  => $transactions,
+            'user'          => $user,
+            'beneficiaries' => $beneficiaries,
         ]);
     }
 

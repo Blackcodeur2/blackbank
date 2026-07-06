@@ -4,10 +4,13 @@ import {
     BookOpen,
     CreditCard,
     FolderGit2,
+    Headphones,
     LayoutGrid,
     PiggyBank,
     ShieldCheck,
+    Smartphone,
     TrendingUp,
+    Users,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -37,6 +40,11 @@ const mainNavItems: NavItem[] = [
         icon: Banknote,
     },
     {
+        title: 'Bénéficiaires',
+        href: '/beneficiaries',
+        icon: Users,
+    },
+    {
         title: 'Épargne',
         href: '/savings',
         icon: TrendingUp,
@@ -45,6 +53,16 @@ const mainNavItems: NavItem[] = [
         title: 'Prêts',
         href: '/loans',
         icon: PiggyBank,
+    },
+    {
+        title: 'Recharge Mobile',
+        href: '/airtime',
+        icon: Smartphone,
+    },
+    {
+        title: 'Support Client',
+        href: '/support',
+        icon: Headphones,
     },
     {
         title: 'Vérification KYC',

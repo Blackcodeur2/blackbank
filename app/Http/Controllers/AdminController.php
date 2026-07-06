@@ -240,4 +240,45 @@ class AdminController extends Controller
 
         return back()->with('success', 'La demande de prêt a été rejetée.');
     }
+
+    /**
+     * List all support tickets for admin review.
+     */
+    public function tickets(): \Inertia\Response
+    {
+        $tickets = \App\Models\SupportTicket::with(['user'])
+            ->withCount('replies')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return Inertia::render('admin/tickets', [
+            'tickets' => $tickets,
+        ]);
+    }
+
+    /**
+     * Reply to a support ticket as admin.
+     */
+    public function replyTicket(Request $request, \App\Models\SupportTicket $ticket): \Illuminate\Http\RedirectResponse
+    {
+        $request->validate([
+            'message' => ['required', 'string', 'min:5'],
+            'statut'  => ['nullable', 'in:ouvert,en_cours,resolu,ferme'],
+        ]);
+
+        \App\Models\SupportTicketReply::create([
+            'ticket_id'      => $ticket->id,
+            'user_id'        => Auth::id(),
+            'message'        => $request->message,
+            'is_admin_reply' => true,
+        ]);
+
+        if ($request->filled('statut')) {
+            $ticket->update(['statut' => $request->statut]);
+        } else {
+            $ticket->update(['statut' => 'en_cours']);
+        }
+
+        return back()->with('success', 'Réponse envoyée.');
+    }
 }

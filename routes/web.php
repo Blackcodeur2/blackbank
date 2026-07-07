@@ -106,6 +106,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{tenant}', [TenantController::class, 'destroy'])->name('destroy')->middleware('permission:manage tenants');
         Route::post('/{tenant}/suspend', [TenantController::class, 'suspend'])->name('suspend')->middleware('permission:manage tenants');
         Route::post('/{tenant}/activate', [TenantController::class, 'activate'])->name('activate')->middleware('permission:manage tenants');
+
+        // Tenant staff management (admin view)
+        Route::prefix('/{tenant}/staff')->name('staff.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Tenant\StaffController::class, 'index'])->name('index')->middleware('permission:manage tenants');
+            Route::get('/create', [\App\Http\Controllers\Tenant\StaffController::class, 'create'])->name('create')->middleware('permission:manage tenants');
+            Route::post('/', [\App\Http\Controllers\Tenant\StaffController::class, 'store'])->name('store')->middleware('permission:manage tenants');
+            Route::get('/{staff}/edit', [\App\Http\Controllers\Tenant\StaffController::class, 'edit'])->name('edit')->middleware('permission:manage tenants');
+            Route::put('/{staff}', [\App\Http\Controllers\Tenant\StaffController::class, 'update'])->name('update')->middleware('permission:manage tenants');
+            Route::delete('/{staff}', [\App\Http\Controllers\Tenant\StaffController::class, 'destroy'])->name('destroy')->middleware('permission:manage tenants');
+        });
     });
 
     // Accounts routes

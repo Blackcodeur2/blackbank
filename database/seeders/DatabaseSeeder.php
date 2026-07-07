@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             CurrencySeeder::class,
             SubscriptionPlanSeeder::class,
             RolePermissionSeeder::class,
+            FullDemoSeeder::class,
         ]);
 
         // 1. Create KYC Form Fields

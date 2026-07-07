@@ -82,6 +82,7 @@ class RolePermissionSeeder extends Seeder
         $landlordAdmin = Role::firstOrCreate(['name' => 'Landlord Admin', 'guard_name' => 'web']);
         $tenantAdmin = Role::firstOrCreate(['name' => 'Tenant Admin', 'guard_name' => 'web']);
         $tenantStaff = Role::firstOrCreate(['name' => 'Tenant Staff', 'guard_name' => 'web']);
+        $agent = Role::firstOrCreate(['name' => 'Agent', 'guard_name' => 'web']);
         $client = Role::firstOrCreate(['name' => 'Client', 'guard_name' => 'web']);
 
         // Assign permissions to Super Admin (all permissions)

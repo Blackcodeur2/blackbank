@@ -45,6 +45,26 @@ class User extends Authenticatable implements PasskeyUser
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable, HasUuids, SoftDeletes, BelongsToTenant, HasRoles;
 
     /**
+     * The attributes that are mass assignable.
+     *
+     * Adding an explicit `$fillable` ensures compatibility in environments
+     * where the `Fillable` attribute may not be respected.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'avatar',
+        'phone',
+        'password',
+        'statut_kyc',
+        'solde',
+        'role',
+        'deux_facteurs_actif',
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

@@ -1,5 +1,7 @@
+import React, { useEffect, useRef, useState } from 'react';
 import { Form, Head, usePage } from '@inertiajs/react';
 import { Link } from '@inertiajs/react';
+import { Inertia } from '@inertiajs/inertia';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
 import Heading from '@/components/heading';
@@ -24,6 +26,38 @@ export default function Profile({
     status?: string;
 }) {
     const { auth } = usePage<PageProps>().props;
+    const [previewUrl, setPreviewUrl] = useState<string | null>(auth.user?.avatar ?? null);
+    const inputRef = useRef<HTMLInputElement | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (previewUrl && previewUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(previewUrl);
+            }
+        };
+    }, [previewUrl]);
+
+    // Client-side resizing removed — upload original file directly
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
+    };
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const form = e.currentTarget as HTMLFormElement;
+        const action = form.action;
+        const formData = new FormData(form);
+
+        // the file input `avatar` is included in the form automatically
+
+        // Use Inertia to submit FormData so Inertia middleware works
+        Inertia.post(action, formData, { preserveScroll: true });
+    };
 
     return (
         <>
@@ -44,6 +78,7 @@ export default function Profile({
                         preserveScroll: true,
                     }}
                     className="space-y-6"
+                    onSubmit={handleSubmit}
                 >
                     {({ processing, errors }) => (
                         <>
@@ -52,7 +87,7 @@ export default function Profile({
 
                                             <div className="flex items-center gap-4">
                                                 <Avatar className="h-12 w-12">
-                                                    <AvatarImage src={auth.user?.avatar} alt={auth.user?.name} />
+                                                    <AvatarImage src={previewUrl ?? undefined} alt={auth.user?.name} />
                                                     <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
                                                         {auth.user?.name?.split(' ').map(n => n[0]).join('').slice(0,2) ?? ''}
                                                     </AvatarFallback>
@@ -60,9 +95,11 @@ export default function Profile({
 
                                                 <Input
                                                     id="avatar"
+                                                    ref={inputRef}
                                                     type="file"
                                                     name="avatar"
                                                     accept="image/*"
+                                                    onChange={handleFileChange}
                                                 />
                                             </div>
 

@@ -15,7 +15,7 @@ class CmsController extends Controller
 
         $pages = CmsPage::latest()->get();
 
-        return Inertia::render('Cms/Index', [
+        return Inertia::render('cms/index', [
             'pages' => $pages,
         ]);
     }
@@ -24,7 +24,7 @@ class CmsController extends Controller
     {
         $this->authorize('manage settings');
 
-        return Inertia::render('Cms/Create');
+        return Inertia::render('cms/create');
     }
 
     public function store(Request $request)
@@ -62,7 +62,7 @@ class CmsController extends Controller
             abort(404);
         }
 
-        return Inertia::render('Cms/Show', [
+        return Inertia::render('cms/show', [
             'page' => $page,
         ]);
     }
@@ -71,7 +71,7 @@ class CmsController extends Controller
     {
         $this->authorize('manage settings');
 
-        return Inertia::render('Cms/Edit', [
+        return Inertia::render('cms/edit', [
             'page' => $page,
         ]);
     }

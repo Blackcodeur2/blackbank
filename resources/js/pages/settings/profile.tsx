@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/react';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/delete-user';
 import Heading from '@/components/heading';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,17 +48,35 @@ export default function Profile({
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">
-                                <Label htmlFor="name">Name</Label>
+                                            <Label htmlFor="name">Photo de profil</Label>
 
-                                <Input
-                                    id="name"
-                                    className="mt-1 block w-full"
-                                    defaultValue={auth.user.name}
-                                    name="name"
-                                    required
-                                    autoComplete="name"
-                                    placeholder="Full name"
-                                />
+                                            <div className="flex items-center gap-4">
+                                                <Avatar className="h-12 w-12">
+                                                    <AvatarImage src={auth.user?.avatar} alt={auth.user?.name} />
+                                                    <AvatarFallback className="rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
+                                                        {auth.user?.name?.split(' ').map(n => n[0]).join('').slice(0,2) ?? ''}
+                                                    </AvatarFallback>
+                                                </Avatar>
+
+                                                <Input
+                                                    id="avatar"
+                                                    type="file"
+                                                    name="avatar"
+                                                    accept="image/*"
+                                                />
+                                            </div>
+
+                                            <Label htmlFor="name">Name</Label>
+
+                                            <Input
+                                                id="name"
+                                                className="mt-1 block w-full"
+                                                defaultValue={auth.user.name}
+                                                name="name"
+                                                required
+                                                autoComplete="name"
+                                                placeholder="Full name"
+                                            />
 
                                 <InputError
                                     className="mt-2"

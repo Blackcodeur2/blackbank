@@ -20,7 +20,7 @@ class ReferralController extends Controller
         $totalEarnings = auth()->user()->referral_earnings ?? 0;
         $totalReferrals = $referrals->count();
 
-        return Inertia::render('Referrals/Index', [
+        return Inertia::render('referrals/index', [
             'referrals' => $referrals,
             'referralCode' => $referralCode,
             'referralLink' => $referralLink,
@@ -58,7 +58,7 @@ class ReferralController extends Controller
         $pendingEarnings = $earnings->where('status', 'pending')->sum('amount');
         $paidEarnings = $earnings->where('status', 'paid')->sum('amount');
 
-        return Inertia::render('Referrals/Earnings', [
+        return Inertia::render('referrals/earnings', [
             'earnings' => $earnings,
             'totalEarnings' => $totalEarnings,
             'pendingEarnings' => $pendingEarnings,

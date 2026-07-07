@@ -17,7 +17,7 @@ class AccountController extends Controller
 
         $accounts = auth()->user()->accounts()->with(['accountType', 'currency'])->get();
 
-        return Inertia::render('Accounts/Index', [
+        return Inertia::render('accounts/index', [
             'accounts' => $accounts,
             'accountTypes' => AccountType::where('active', true)->get(),
             'currencies' => Currency::where('active', true)->get(),
@@ -28,7 +28,7 @@ class AccountController extends Controller
     {
         $this->authorize('create accounts');
 
-        return Inertia::render('Accounts/Create', [
+        return Inertia::render('accounts/create', [
             'accountTypes' => AccountType::where('active', true)->get(),
             'currencies' => Currency::where('active', true)->get(),
         ]);
@@ -72,7 +72,7 @@ class AccountController extends Controller
 
         $account->load(['accountType', 'currency', 'transactions']);
 
-        return Inertia::render('Accounts/Show', [
+        return Inertia::render('accounts/show', [
             'account' => $account,
         ]);
     }
@@ -83,7 +83,7 @@ class AccountController extends Controller
 
         $account->load(['accountType', 'currency']);
 
-        return Inertia::render('Accounts/Edit', [
+        return Inertia::render('accounts/edit', [
             'account' => $account,
             'accountTypes' => AccountType::where('active', true)->get(),
             'currencies' => Currency::where('active', true)->get(),

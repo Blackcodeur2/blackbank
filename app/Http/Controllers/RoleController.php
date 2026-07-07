@@ -17,7 +17,7 @@ class RoleController extends Controller
         $roles = Role::with('permissions')->get();
         $permissions = Permission::all();
 
-        return Inertia::render('Roles/Index', [
+        return Inertia::render('roles/index', [
             'roles' => $roles,
             'permissions' => $permissions,
         ]);
@@ -29,7 +29,7 @@ class RoleController extends Controller
 
         $permissions = Permission::all();
 
-        return Inertia::render('Roles/Create', [
+        return Inertia::render('roles/create', [
             'permissions' => $permissions,
         ]);
     }
@@ -66,7 +66,7 @@ class RoleController extends Controller
         $role->load('permissions');
         $permissions = Permission::all();
 
-        return Inertia::render('Roles/Edit', [
+        return Inertia::render('roles/edit', [
             'role' => $role,
             'permissions' => $permissions,
         ]);

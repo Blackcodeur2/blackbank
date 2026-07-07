@@ -18,7 +18,7 @@ class TenantController extends Controller
 
         $tenants = Tenant::with(['domains', 'subscription.plan'])->get();
 
-        return Inertia::render('Tenants/Index', [
+        return Inertia::render('tenants/index', [
             'tenants' => $tenants,
             'plans' => SubscriptionPlan::where('active', true)->get(),
         ]);
@@ -28,7 +28,7 @@ class TenantController extends Controller
     {
         $this->authorize('manage tenants');
 
-        return Inertia::render('Tenants/Create', [
+        return Inertia::render('tenants/create', [
             'plans' => SubscriptionPlan::where('active', true)->get(),
         ]);
     }
@@ -101,7 +101,7 @@ class TenantController extends Controller
 
         $tenant->load(['domains', 'subscription.plan', 'users']);
 
-        return Inertia::render('Tenants/Show', [
+        return Inertia::render('tenants/show', [
             'tenant' => $tenant,
         ]);
     }
@@ -112,7 +112,7 @@ class TenantController extends Controller
 
         $tenant->load(['domains', 'subscription']);
 
-        return Inertia::render('Tenants/Edit', [
+        return Inertia::render('tenants/edit', [
             'tenant' => $tenant,
             'plans' => SubscriptionPlan::where('active', true)->get(),
         ]);

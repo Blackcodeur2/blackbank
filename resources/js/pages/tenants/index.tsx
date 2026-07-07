@@ -30,7 +30,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type Tenant = {
     id: string;
-    name: string;
+    name?: string | null;
     slug: string;
     email: string;
     phone?: string;
@@ -165,7 +165,7 @@ export default function TenantsIndex({ tenants, plans }: Props) {
                                                             className="flex h-10 w-10 items-center justify-center rounded-lg text-white font-bold"
                                                             style={{ backgroundColor: tenant.primary_color }}
                                                         >
-                                                            {tenant.name.charAt(0).toUpperCase()}
+                                                            {(tenant.name?.charAt(0) ?? '?').toUpperCase()}
                                                         </div>
                                                         <div>
                                                             <div className="font-medium">{tenant.name}</div>

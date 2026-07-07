@@ -37,7 +37,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  */
-#[Fillable(['name', 'email', 'phone', 'password', 'statut_kyc', 'solde', 'role', 'deux_facteurs_actif'])]
+#[Fillable(['name', 'email', 'avatar', 'phone', 'password', 'statut_kyc', 'solde', 'role', 'deux_facteurs_actif'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
 class User extends Authenticatable implements PasskeyUser
 {

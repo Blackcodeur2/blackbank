@@ -18,21 +18,9 @@ class CreateTenantsTable extends Migration
         Schema::create('tenants', function (Blueprint $table) {
             $table->string('id')->primary();
 
-            // Custom columns for banking SaaS
-            $table->string('name');
-            $table->string('slug')->unique();
-            $table->string('email')->unique();
-            $table->string('phone')->nullable();
-            $table->text('address')->nullable();
-            $table->string('logo')->nullable();
-            $table->string('primary_color')->default('#3b82f6');
-            $table->string('secondary_color')->default('#1e40af');
-            $table->string('default_currency')->default('XAF');
-            $table->string('timezone')->default('Africa/Douala');
-            $table->enum('status', ['active', 'suspended', 'deleted'])->default('active');
-            $table->timestamp('suspended_at')->nullable();
-            $table->text('suspension_reason')->nullable();
-
+            // Custom columns for banking SaaS - stored in JSON data field
+            // We keep the table structure minimal and use the data JSON field
+            $table->string('name')->nullable(); // Required by stancl/tenancy, but we use data field
             $table->timestamps();
             $table->json('data')->nullable();
         });

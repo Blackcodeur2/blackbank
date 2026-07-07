@@ -15,7 +15,7 @@ class EnsureIsAdmin
     {
         $user = $request->user();
 
-        if (! $user || ! in_array($user->role, ['admin', 'super_admin'])) {
+        if (! $user || ! $user->hasAnyRole(['Super Admin', 'Landlord Admin', 'Tenant Admin'])) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Accès interdit. Rôle administratif requis.'], 403);
             }

@@ -28,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'kyc.verified' => \App\Http\Middleware\EnsureKycVerified::class,
             'admin'        => \App\Http\Middleware\EnsureIsAdmin::class,
+            'permission'   => \App\Http\Middleware\HasPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

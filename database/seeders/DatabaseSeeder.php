@@ -24,6 +24,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Call new seeders first
+        $this->call([
+            TenantSeeder::class,
+            CurrencySeeder::class,
+            SubscriptionPlanSeeder::class,
+            RolePermissionSeeder::class,
+        ]);
+
         // 1. Create KYC Form Fields
         KycFormField::create([
             'libelle' => 'Pièce d’identité nationale (CNI/Passeport)',
@@ -130,8 +138,8 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
             'statut_kyc' => 'verifie',
             'solde' => 100000.00,
-            'role' => 'super_admin',
         ]);
+        $superAdmin->assignRole('Super Admin');
 
         $admin = User::create([
             'name' => 'Admin Bank',
@@ -141,8 +149,8 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
             'statut_kyc' => 'verifie',
             'solde' => 50000.00,
-            'role' => 'admin',
         ]);
+        $admin->assignRole('Tenant Admin');
 
         $verifiedClient = User::create([
             'name' => 'Jean Dupont',
@@ -152,8 +160,8 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
             'statut_kyc' => 'verifie',
             'solde' => 5230.50,
-            'role' => 'client',
         ]);
+        $verifiedClient->assignRole('Client');
 
         $unverifiedClient = User::create([
             'name' => 'Marie Martin',
@@ -163,8 +171,8 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
             'statut_kyc' => 'en_attente',
             'solde' => 0.00,
-            'role' => 'client',
         ]);
+        $unverifiedClient->assignRole('Client');
 
         // 6. Seed some transactions for Jean Dupont
         Transaction::create([

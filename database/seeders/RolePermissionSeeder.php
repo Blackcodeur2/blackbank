@@ -36,6 +36,7 @@ class RolePermissionSeeder extends Seeder
             // Account management
             'manage accounts',
             'create accounts',
+            'view own accounts',
             'freeze accounts',
             
             // Loan management
@@ -56,6 +57,13 @@ class RolePermissionSeeder extends Seeder
             'manage settings',
             'manage payment gateways',
             'manage withdrawal methods',
+            
+            // Role management
+            'manage roles',
+            
+            // Referral management
+            'view referrals',
+            'create referrals',
             
             // Client permissions
             'create transactions',
@@ -102,6 +110,7 @@ class RolePermissionSeeder extends Seeder
             'reject transactions',
             'manage accounts',
             'create accounts',
+            'view own accounts',
             'freeze accounts',
             'manage loans',
             'approve loans',
@@ -114,6 +123,8 @@ class RolePermissionSeeder extends Seeder
             'manage settings',
             'manage payment gateways',
             'manage withdrawal methods',
+            'view referrals',
+            'create referrals',
         ]);
 
         // Assign permissions to Tenant Staff (limited operations)

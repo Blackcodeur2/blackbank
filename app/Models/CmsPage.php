@@ -16,6 +16,8 @@ class CmsPage extends Model
         'slug',
         'title',
         'content',
+        'meta_title',
+        'meta_description',
         'is_published',
         'order',
     ];

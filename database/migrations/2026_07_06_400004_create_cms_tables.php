@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->string('title');
             $table->text('content')->nullable();
+            $table->string('meta_title')->nullable();
+            $table->string('meta_description')->nullable();
             $table->boolean('is_published')->default(false);
             $table->integer('order')->default(0);
             

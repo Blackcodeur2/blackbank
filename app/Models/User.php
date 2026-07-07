@@ -107,4 +107,28 @@ class User extends Authenticatable implements PasskeyUser
     {
         return $this->hasMany(LoginHistory::class);
     }
+
+    /**
+     * Bank accounts owned by the user.
+     */
+    public function accounts(): HasMany
+    {
+        return $this->hasMany(Account::class);
+    }
+
+    /**
+     * Referrals made by the user.
+     */
+    public function referrals(): HasMany
+    {
+        return $this->hasMany(Referral::class, 'referrer_id');
+    }
+
+    /**
+     * Referral rewards for the user.
+     */
+    public function referralRewards(): HasMany
+    {
+        return $this->hasMany(ReferralReward::class, 'referrer_id');
+    }
 }

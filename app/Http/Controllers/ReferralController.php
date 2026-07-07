@@ -53,8 +53,8 @@ class ReferralController extends Controller
     {
         $this->authorize('view referrals');
 
-        $earnings = auth()->user()->referralEarnings()->latest()->get();
-        $totalEarnings = auth()->user()->referral_earnings ?? 0;
+        $earnings = auth()->user()->referralRewards()->latest()->get();
+        $totalEarnings = auth()->user()->referral_rewards ?? 0;
         $pendingEarnings = $earnings->where('status', 'pending')->sum('amount');
         $paidEarnings = $earnings->where('status', 'paid')->sum('amount');
 

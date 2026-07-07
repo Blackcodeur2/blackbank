@@ -32,6 +32,11 @@ import {
     SidebarGroupLabel,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as accountsIndex } from '@/routes/accounts';
+import { index as referralsIndex } from '@/routes/referrals';
+import { index as tenantsIndex } from '@/routes/tenants';
+import { index as cmsIndex } from '@/routes/cms';
+import { index as rolesIndex } from '@/routes/roles';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -97,7 +102,7 @@ export function AppSidebar() {
     if (permissions.includes('manage accounts') || permissions.includes('view own accounts')) {
         navItems.push({
             title: 'Comptes',
-            href: '/accounts',
+            href: accountsIndex(),
             icon: CreditCard,
         });
     }
@@ -106,7 +111,7 @@ export function AppSidebar() {
     if (permissions.includes('view referrals')) {
         navItems.push({
             title: 'Parrainage',
-            href: '/referrals',
+            href: referralsIndex(),
             icon: FolderGit2,
         });
     }
@@ -118,7 +123,7 @@ export function AppSidebar() {
     if (roles.includes('Super Admin') || roles.includes('Landlord Admin')) {
         adminNavItems.push({
             title: 'Tenants',
-            href: '/tenants',
+            href: tenantsIndex(),
             icon: Building2,
         });
     }
@@ -127,7 +132,7 @@ export function AppSidebar() {
     if (roles.includes('Super Admin') || roles.includes('Landlord Admin') || roles.includes('Tenant Admin')) {
         adminNavItems.push({
             title: 'CMS',
-            href: '/cms',
+            href: cmsIndex(),
             icon: FileText,
         });
     }
@@ -136,7 +141,7 @@ export function AppSidebar() {
     if (roles.includes('Super Admin')) {
         adminNavItems.push({
             title: 'Rôles & Permissions',
-            href: '/admin/roles',
+            href: rolesIndex(),
             icon: UserCog,
         });
     }
